@@ -1,0 +1,157 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+--><link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="shared-styles.html">
+
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+
+
+<dom-module id="my-view1">
+  <!-- Was going to use css file instead. However, had a "Resource interpreted as Document but
+      transferred with MIME type text/css" message and read that it can be used but will be excluded
+      in future so I decided to stick with this setup -->
+  <!--<link rel="import" type="css" href="../assets/css/main.css">-->
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+    </style>
+
+    <div class="card">
+      <div class="circle">1</div>
+      <h1>ToDo List</h1>
+      <div class="new-wrapper">
+        <paper-input id="taskName" label="Name" value="{{todo.name}}" required="" auto-validate="" preventinvalidinput="" invalid="{{invalid}}" error-message="needs some text!"></paper-input>
+        <paper-input id="taskDetails" label="Details" value="{{todo.details}}" required="" auto-validate="" preventinvalidinput="" invalid="{{invalid}}" error-message="needs some text!"></paper-input>
+
+        <paper-fab class="red clear" icon="close" on-tap="_clearInputs" raised=""></paper-fab>
+        <paper-fab id="addTodo" class="green add-todo" icon="add" on-tap="_addToDo" raised="" disabled$="[[invalid]]"></paper-fab>
+        <paper-fab id="saveTodo" class="blue save-todo" icon="check" on-tap="_saveToDo" raised="" disabled$="[[invalid]]" hidden=""></paper-fab>
+      </div>
+
+      <paper-button toggles="" class="remove-all" raised="" on-tap="_removeAllToDos">
+        <iron-icon icon="clear"></iron-icon>
+        remove all
+      </paper-button>
+
+      <iron-list items="{{todos}}" as="item">
+        <template>
+          <div class="item">
+            <div class="item-label">
+              <b>[[item.name]]</b>
+              <b>[[item.details]]</b>
+            </div>
+            <div class="item-buttons">
+              <iron-icon class="edit-icon" on-tap="_editToDo" icon="create"></iron-icon>
+              <iron-icon class="remove-icon" on-tap="_removeToDo" icon="close"></iron-icon>
+            </div>
+          </div>
+        </template>
+      </iron-list>
+    </div>
+
+    <iron-localstorage name="todos" value="{{todos}}" on-iron-localstorage-load-empty="initializeStorage">
+    </iron-localstorage>
+
+  </template>
+
+  <script>
+    Polymer ({
+      is: "my-view1",
+
+      properties: {
+        currentTaskBeingEdited: {
+          type: Number,
+          value: function() {
+            return 0;
+          }
+        },
+        todo: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        },
+        todos: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        }
+      },
+      _addToDo: function() {
+        if(!this.todo.name == '' && !this.todo.details == '') {
+          this.push('todos', this.todo);
+          this.todo = { name: '', details: '' };
+          this.$.taskName.invalid = false;
+          this.$.taskDetails.invalid = false;
+        } else {
+          this.$.taskName.invalid = true;
+          this.$.taskDetails.invalid = true;
+        }
+      },
+      _saveToDo: function() {
+        if(!this.todo.name == '' && !this.todo.details == '') {
+          this.todos[this.currentTaskBeingEdited] = this.todo;
+          this.refreshList();
+          this.todo = { name: '', details: '' };
+          this.$.taskName.invalid = false;
+          this.$.taskDetails.invalid = false;
+
+          this.$.saveTodo.hidden = true;
+          this.$.addTodo.hidden = false;
+        } else {
+          this.$.taskName.invalid = true;
+          this.$.taskDetails.invalid = true;
+        }
+      },
+      _clearInputs: function() {
+        this.todo = { name: '', details: '' };
+        this.$.taskName.invalid = false;
+        this.$.taskDetails.invalid = false;
+        if(!this.$.saveTodo.hidden) {
+          this.$.saveTodo.hidden = true;
+          this.$.addTodo.hidden = false;
+        }
+      },
+      _removeAllToDos: function() {
+        this.todos = [];
+        this.$.taskName.invalid = false;
+        this.$.taskDetails.invalid = false;
+        this.refreshList();
+      },
+      refreshList: function() {
+        this.push('todos', { name: '', details: '' });
+        this.pop('todos');
+      },
+      _editToDo: function(e) {
+        this.todo = { name: e.model.get('item').name, details: e.model.get('item').details};
+        this.currentTaskBeingEdited = e.model.get('index');
+        this.$.addTodo.hidden = true;
+        this.$.saveTodo.hidden = false;
+      },
+      _removeToDo: function(e) {
+        this.todos.splice(e.model.get('index'), 1);
+        this.refreshList();
+      },
+      initializeStorage: function() {
+        this.todos = [];
+      }
+    });
+  </script>
+</dom-module>

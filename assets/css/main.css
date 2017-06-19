@@ -1,0 +1,112 @@
+.card {
+  margin: 24px;
+  padding: 16px;
+  color: #757575;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.circle {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  text-align: center;
+  color: #FFF;
+  border-radius: 50%;
+  background: #4285f4;
+  font-size: 30px;
+  line-height: 64px;
+}
+
+h1 {
+  margin: 16px 0;
+  color: #212121;
+  font-size: 30px;
+}
+
+.new-wrapper {
+  border: 1px solid #90A4AE;
+  border-radius: 3px;
+  padding: 20px;
+}
+.new-wrapper:after {
+  content:'';
+  display:block; /* or whatever else than inline */
+  clear:both;
+}
+
+paper-button {
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+paper-button:hover {
+  background: #b50d0d;
+}
+.remove-all {
+  margin: 1.5rem 0 .15rem 0;
+  width: 100%;
+  border: 2px solid black;
+  background: red;
+  color: white;
+}
+paper-fab.green {
+  background: #4caf50;
+  float: right;
+}
+paper-fab.green:hover {
+  background: green;
+}
+paper-fab.blue {
+  background: #4285f4;
+  float: right;
+}
+paper-fab.blue:hover {
+  background: blue;
+}
+paper-fab.red {
+  background: red;
+  float: right;
+  margin-left: 1rem;
+}
+paper-fab.red:hover {
+  background: #b50d0d;
+}
+div.item {
+  padding: 10px;
+  border: 1px solid #90A4AE;
+  border-radius: 3px;
+}
+div.item:hover {
+  /*background: #cacaca;*/
+  background: #4285f4;
+  color: #FFF;
+}
+.item-label {
+  float: left;
+  width: 90%;
+}
+b {
+  margin-right: 1.5rem;
+}
+.item-buttons {
+  float: left;
+  width: 10%;
+}
+.edit-icon, .remove-icon {
+  float:left;
+  width: 50%;
+}
+.edit-icon:hover, .remove-icon:hover {
+  color: #FFF;
+}
+.edit-icon {
+  color: #000;
+}
+.remove-icon {
+  color: red;
+}
+[hidden] {
+  display: none;
+}

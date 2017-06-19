@@ -1,0 +1,156 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="shared-styles.html">
+
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-localstorage/iron-localstorage.html">
+
+
+<dom-module id="my-view3">
+  <!-- Was going to use css file instead. However, had a "Resource interpreted as Document but
+      transferred with MIME type text/css" message and read that it can be used but will be excluded
+      in future so I decided to stick with this setup -->
+  <!--<link rel="import" type="css" href="../assets/css/main.css">-->
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 10px;
+      }
+    </style>
+
+    <div class="card">
+      <div class="circle">3</div>
+      <h1>Notes</h1>
+      <div class="new-wrapper">
+        <paper-input id="noteContent" label="Note" value="{{note.nContent}}" required auto-validate preventInvalidInput invalid="{{invalid}}" error-message="needs some text!"></paper-input>
+
+        <paper-fab class="red clear" icon="close" on-tap="_clearInputs" raised></paper-fab>
+        <paper-fab id="addNote" class="green add-note" icon="add" on-tap="_addNote" raised disabled$="[[invalid]]"></paper-fab>
+        <paper-fab id="saveNote" class="blue save-note" icon="check" on-tap="_saveNote" raised disabled$="[[invalid]]" hidden></paper-fab>
+      </div>
+
+      <paper-button toggles class="remove-all" raised on-tap="_removeAllNotes">
+        <iron-icon icon="clear"></iron-icon>
+        remove all
+      </paper-button>
+
+      <iron-list items="{{notes}}" as="item">
+        <template>
+          <div class="item">
+            <div class="item-label">
+              <b>[[item.nContent]]</b>
+            </div>
+            <div class="item-buttons">
+              <iron-icon class="edit-icon" on-tap="_editNote" icon="create"></iron-icon>
+              <iron-icon class="remove-icon" on-tap="_removeNote" icon="close"></iron-icon>
+            </div>
+          </div>
+        </template>
+      </iron-list>
+    </div>
+
+    <iron-localstorage name="notes"
+      value="{{notes}}"
+      on-iron-localstorage-load-empty="initializeStorage">
+    </iron-localstorage>
+
+  </template>
+
+  <script>
+  'use strict';
+
+  Polymer ({
+    is: "my-view3",
+
+    properties: {
+      currentNoteBeingEdited: {
+        type: Number,
+        value: function() {
+          return 0;
+        }
+      },
+      note: {
+        type: Object,
+        value: function() {
+          return {};
+        }
+      },
+      notes: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      }
+    },
+    _addNote: function() {
+      if(!this.note.nContent == '') {
+        this.push('notes', this.note);
+        this.note = { nContent: ''};
+        this.$.noteContent.invalid = false;
+      } else {
+        this.$.noteContent.invalid = true;
+      }
+    },
+    _saveNote: function() {
+      if(!this.note.nContent == '') {
+        this.notes[this.currentNoteBeingEdited] = this.note;
+        this.refreshList();
+        this.note = { nContent: ''};
+        this.$.noteContent.invalid = false;
+
+        this.$.saveNote.hidden = true;
+        this.$.addNote.hidden = false;
+      } else {
+        this.$.noteContent.invalid = true;
+      }
+    },
+    _clearInputs: function() {
+      this.note = { nContent: ''};
+      this.$.noteContent.invalid = false;
+      if(!this.$.saveNote.hidden) {
+        this.$.saveNote.hidden = true;
+        this.$.addNote.hidden = false;
+      }
+    },
+    _removeAllNotes: function() {
+      this.notes = [];
+      this.$.noteContent.invalid = false;
+      this.refreshList();
+    },
+    refreshList: function() {
+      this.push('notes', { nContent: '' });
+      this.pop('notes');
+    },
+    _editNote: function(e) {
+      this.note = { nContent: e.model.get('item').nContent};
+      this.currentNoteBeingEdited = e.model.get('index');
+
+      this.$.addNote.hidden = true;
+      this.$.saveNote.hidden = false;
+    },
+    _removeNote: function(e) {
+      this.notes.splice(e.model.get('index'), 1);
+      this.refreshList();
+    },
+    initializeStorage: function() {
+      this.notes = [];
+    }
+  });
+  </script>
+</dom-module>
